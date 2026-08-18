@@ -1,5 +1,21 @@
 import mongoose from "mongoose";
 
+const reviewSchema = mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
+    user: {
+      type: String,
+      ref: 'User',
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const movieSchema = new mongoose.Schema(
   {
     _id: { type: String, required: true },
@@ -15,6 +31,7 @@ const movieSchema = new mongoose.Schema(
     vote_average: { type: Number, required: true },
     vote_count: { type: Number, default: 0 },
     runtime: { type: Number, required: true },
+    reviews: [reviewSchema],
   },
   {
     timestamps: true,

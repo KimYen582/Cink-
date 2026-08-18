@@ -16,27 +16,18 @@ router.post("/sync", async (req, res) => {
         }
 
         const user = await clerkClient.users.getUser(userId);
-        const email = user.emailAddresses[0]?.emailAddress?.toLowerCase();
-        const metadataRole = user.publicMetadata?.role ?? user.privateMetadata?.role ?? user.unsafeMetadata?.role;
-        const isAdminEmail = email === "admin@cin.com";
-        const isAdminRole = String(metadataRole || "").toLowerCase() === "admin";
-        const isAdmin = isAdminRole || isAdminEmail;
+        const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+        const role = user.publicMetadata?.role ?? user.unsafeMetadata?.role ?? user.privateMetadata?.role ?? "user";
+        const email = user.emailAddresses[0]?.emailAddress;
+        const image = user.imageUrl;
 
         const userData = {
             _id: user.id,
-            name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+            name: name,
             email: email,
             image: user.imageUrl,
-            role: isAdmin ? "admin" : "user",
+            role: String(role).toLowerCase() === "admin" ? "admin" : "user",
         };
-
-        if (isAdmin) {
-            await clerkClient.users.updateUser(user.id, {
-                publicMetadata: {
-                    role: "admin",
-                },
-            });
-        }
 
         const savedUser = await User.findByIdAndUpdate(
             user.id,

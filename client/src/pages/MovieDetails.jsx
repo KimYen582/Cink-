@@ -5,6 +5,7 @@ import { Heart, PlayCircleIcon, StarIcon, Clock, Calendar, Film } from 'lucide-r
 import timeFormat from '../lib/timeFormat'
 import DateSelect from '../components/DateSelect'
 import MovieCard from '../components/MovieCard'
+import MovieReviews from '../components/MovieReviews'
 import { MovieDetailsSkeleton } from '../components/Loading'
 import useShow from '../hooks/useShow'
 import { useAppContext } from '../context/AppContext'
@@ -14,6 +15,11 @@ const MovieDetails = () => {
   const { id } = useParams()
   const { show, loading, error } = useShow(id)
   const { shows } = useAppContext()
+
+  const handleReviewAdded = () => {
+    // Quick refresh to get new reviews
+    window.location.reload();
+  }
 
   if (loading) return <MovieDetailsSkeleton />
 
@@ -98,6 +104,12 @@ const MovieDetails = () => {
           </div>
         </>
       )}
+
+      <MovieReviews 
+        movieId={show.movie._id} 
+        reviews={show.movie.reviews || []} 
+        onReviewAdded={handleReviewAdded} 
+      />
 
       <DateSelect dateTime={show.dateTime} id={id} />
 

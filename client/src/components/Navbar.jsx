@@ -75,11 +75,16 @@ const Navbar = () => {
           !user ? (
             <button onClick={openSignIn} className='px-5 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition-all duration-200 rounded-full font-medium cursor-pointer hover:shadow-lg hover:shadow-primary/20 active:scale-95'>Login</button>
           ) : (
-            <UserButton>
-              <UserButton.MenuItems>
-                <UserButton.Action label='My Bookings' labelIcon={<TicketPlus width={15} />} onClick={() => navigate('/my-bookings')} />
-              </UserButton.MenuItems>
-            </UserButton >
+              <UserButton>
+                <UserButton.MenuItems>
+                  {/* Show Admin Dashboard link if user is admin */}
+                  {(user?.publicMetadata?.role === 'admin' || user?.unsafeMetadata?.role === 'admin' || user?.privateMetadata?.role === 'admin') && (
+                    <UserButton.Action label='Admin Dashboard' labelIcon={<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>} onClick={() => navigate('/admin')} />
+                  )}
+                  <UserButton.Action label='My Bookings' labelIcon={<TicketPlus width={15} />} onClick={() => navigate('/my-bookings')} />
+                  <UserButton.Action label='Profile Settings' labelIcon={<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 11v2"/><path d="M19 17v2"/><path d="m21.7 14.3-1.4.8"/><path d="m16.3 16.7-1.4.8"/><path d="m21.7 15.7-1.4-.8"/><path d="m16.3 13.3-1.4-.8"/></svg>} onClick={() => navigate('/profile')} />
+                </UserButton.MenuItems>
+              </UserButton >
           )
         }
       </div>

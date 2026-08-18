@@ -1,46 +1,34 @@
 import api from './api';
-import { dummyShowsData, dummyDateTimeData } from '../assets/assets';
 
 /**
  * Get all shows with movie data (for public pages)
- * Falls back to dummy data if API unavailable
  */
 export const getShows = async () => {
-  try {
-    const data = await api.get('/admin/shows');
-    return data.shows || [];
-  } catch {
-    // Fallback to dummy data when server is not running
-    return dummyShowsData;
-  }
+  const data = await api.get('/shows');
+  return data.shows || [];
 };
 
 /**
  * Get show by ID with movie data and dateTime info
- * @param {string} id - Show/movie ID
- * @returns {{ movie, dateTime }} show data with schedule
+ * @param {string} id - Show ID
  */
 export const getShowById = async (id) => {
-  try {
-    const data = await api.get(`/admin/shows`);
-    const shows = data.shows || [];
-    const show = shows.find((s) => s._id === id || s.movie?._id === id);
-    if (show) {
-      return {
-        movie: show.movie || show,
-        dateTime: show.dateTime || {},
-      };
-    }
-    throw new Error('Show not found');
-  } catch {
-    // Fallback to dummy data
-    const movie = dummyShowsData.find((s) => s._id === id);
-    if (movie) {
-      return {
-        movie,
-        dateTime: dummyDateTimeData[id] || {},
-      };
-    }
-    return null;
+  const data = await api.get(`/shows/${id}`);
+  if (data.success && data.show) {
+    return {
+      movie: data.show.movie || data.show,
+      dateTime: { [data.show.showDateTime]: data.show._id },
+    };
   }
+  throw new Error('Show not found');
+};
+
+/**
+ * Submit a movie review
+ * @param {string} movieId 
+ * @param {Object} reviewData - { rating, comment }
+ */
+export const submitReview = async (movieId, reviewData) => {
+  const data = await api.post(`/movies/${movieId}/reviews`, reviewData);
+  return data;
 };

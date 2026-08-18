@@ -9,19 +9,34 @@ import Payment from "../models/Payment.js";
 
 const router = express.Router();
 
+import Session from "../models/Session.js";
+
 const ensureAdmin = async (req, res, next) => {
-  const { userId } = getAuth(req);
-
-  if (!userId) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
   try {
+    // 1. Try local dev token first
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token) {
+      const session = await Session.findOne({ token });
+      if (session && session.userId) {
+        const user = await User.findById(session.userId);
+        if (user && user.role === "admin") {
+          req.admin = user; // local admin
+          return next();
+        }
+      }
+    }
+
+    // 2. Try Clerk auth
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
     const clerkUser = await clerkClient.users.getUser(userId);
-    const email = clerkUser.emailAddresses?.[0]?.emailAddress?.toLowerCase() || "";
     const role = clerkUser.publicMetadata?.role ?? clerkUser.unsafeMetadata?.role ?? clerkUser.privateMetadata?.role ?? "user";
 
-    const isAdmin = String(role).toLowerCase() === "admin" || email === "admin@cin.com";
+    const isAdmin = String(role).toLowerCase() === "admin";
 
     if (!isAdmin) {
       return res.status(403).json({ success: false, message: "Admin access required" });
@@ -50,16 +65,25 @@ const formatShowResponse = async (show) => {
 
 router.get("/me", ensureAdmin, async (req, res) => {
   try {
-    const clerkUser = req.admin;
+    const userOrClerk = req.admin;
 
+    // If local user
+    if (userOrClerk.email) {
+      return res.json({
+        success: true,
+        admin: userOrClerk,
+      });
+    }
+
+    // If clerk user
     const adminRecord = await Admin.findOneAndUpdate(
-      { clerkUserId: clerkUser.id },
+      { clerkUserId: userOrClerk.id },
       {
-        _id: clerkUser.id,
-        name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
-        email: clerkUser.emailAddresses[0]?.emailAddress,
+        _id: userOrClerk.id,
+        name: `${userOrClerk.firstName || ""} ${userOrClerk.lastName || ""}`.trim(),
+        email: userOrClerk.emailAddresses?.[0]?.emailAddress,
         role: "admin",
-        clerkUserId: clerkUser.id,
+        clerkUserId: userOrClerk.id,
       },
       { upsert: true, new: true }
     );
@@ -67,7 +91,7 @@ router.get("/me", ensureAdmin, async (req, res) => {
     res.json({
       success: true,
       admin: adminRecord,
-      clerkUser,
+      clerkUser: userOrClerk,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

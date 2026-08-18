@@ -20,6 +20,11 @@ export const setClerkGetToken = (getTokenFn) => {
 // Request interceptor: attach auth token
 api.interceptors.request.use(
   async (config) => {
+    // If Authorization is explicitly set in the request, skip auto-injection
+    if (config.headers.Authorization || (config.headers.get && config.headers.get('Authorization'))) {
+      return config;
+    }
+
     let token = null;
 
     // Try Clerk token first

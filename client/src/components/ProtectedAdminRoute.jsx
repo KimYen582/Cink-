@@ -10,11 +10,6 @@ const getUserRole = (user) => {
     return role.toLowerCase();
   }
 
-  const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
-  if (email.toLowerCase() === 'admin@cin.com') {
-    return 'admin';
-  }
-
   return 'user';
 };
 
@@ -28,7 +23,11 @@ const ProtectedAdminRoute = () => {
       const token = localStorage.getItem('auth_token');
       if (token) {
         try {
-          const data = await api.get('/auth/me');
+          const data = await api.get('/auth/me', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
           if (data.success) {
             setLocalUser(data.user);
           }
