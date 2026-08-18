@@ -2,26 +2,21 @@ import React, { useState, useEffect } from 'react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
-import { useAuth } from '@clerk/clerk-react';
+import { useAppContext } from '../../context/AppContext';
+import { getShows } from '../../services/adminService';
 
 const ListShows = () => {
-    const currency = import.meta.env.VITE_CURRENCY || '$';
-    const { getToken } = useAuth();
+    const { currency } = useAppContext();
 
     const [shows, setShows] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const getAllShows = async () => {
         try {
-            const token = await getToken();
-            const response = await fetch('http://localhost:3000/api/admin/shows', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Failed to fetch shows');
-            setShows(data.shows || []);
+            const data = await getShows();
+            setShows(data);
         } catch (error) {
-            console.error(error);
+            console.error('Failed to load shows:', error);
         } finally {
             setLoading(false);
         }

@@ -4,11 +4,11 @@ import Loading from "../../components/Loading";
 import Title from '../../components/admin/Title';
 import BlurCircle from '../../components/BlurCircle';
 import { dateFormat } from '../../lib/dateFormat';
-import { useAuth } from '@clerk/clerk-react';
+import { useAppContext } from '../../context/AppContext';
+import { getDashboard } from '../../services/adminService';
 
 const Dashboard = () => {
-    const currency = import.meta.env.VITE_CURRENCY || '$';
-    const { getToken } = useAuth();
+    const { currency } = useAppContext();
 
     const [dashboardData, setDashboardData] = useState({
         totalBookings: 0,
@@ -28,19 +28,10 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const token = await getToken();
-            const response = await fetch('http://localhost:3000/api/admin/dashboard', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Failed to fetch dashboard');
-
-            setDashboardData(data.dashboard);
+            const data = await getDashboard();
+            setDashboardData(data);
         } catch (error) {
-            console.error(error);
+            console.error('Failed to load dashboard:', error);
         } finally {
             setLoading(false);
         }

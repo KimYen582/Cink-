@@ -1,64 +1,99 @@
 import React, { useState, useEffect } from 'react'
-import { dummyBookingData } from '../assets/assets'
 import BlurCircle from '../components/BlurCircle'
 import Loading from '../components/Loading'
 import timeFormat from '../lib/timeFormat'
 import { dateFormat } from '../lib/dateFormat'
+import { useAppContext } from '../context/AppContext'
+import { getMyBookings } from '../services/bookingService'
+import { TicketIcon, CalendarIcon, ArmchairIcon } from 'lucide-react'
 
 const MyBookings = () => {
-  const currency = '₫'
+  const { currency } = useAppContext()
 
   const [bookings, setBookings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const getMyBookings = async () => {
-    setBookings(dummyBookingData)
-    setIsLoading(false)
+  const fetchBookings = async () => {
+    try {
+      const data = await getMyBookings()
+      setBookings(data)
+    } catch (err) {
+      console.error('Failed to load bookings:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
+
   useEffect(() => {
-    getMyBookings()
+    fetchBookings()
   }, [])
 
-  return !isLoading ? (
-    <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]'>
+  if (isLoading) return <Loading />
+
+  return (
+    <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh] animate-fade-in'>
       <BlurCircle top="100px" left="100px" />
-      <div>
-        <BlurCircle bottom="0px" left="600px" />
-      </div>
-      <h1 className='text-lg font-semibold mb-4'>My Bookings</h1>
-      {bookings.map((item, index) => (
-        <div key={index} className='flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl'>
-          <div className='flex flex-col md:flex-row'>
-            <img src={item.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded' />
-            <div className='flex flex-col p-4'>
-              <p className='text-lg font-semibold'>{item.show.movie.title}</p>
-              <p className='text-gray-400 text-sm'>{timeFormat(item.show.movie.runtime)}</p>
-              <p className='text-gray-400 text-sm mt-auto'>{dateFormat(item.show.showDateTime)}</p>
-            </div>
+      <BlurCircle bottom="0px" left="600px" />
+
+      <h1 className='text-xl font-semibold'>My Bookings</h1>
+      <p className='text-gray-500 text-sm mt-1 mb-6'>{bookings.length} booking{bookings.length !== 1 ? 's' : ''} found</p>
+
+      {bookings.length === 0 ? (
+        <div className='flex flex-col items-center justify-center py-20 gap-4'>
+          <div className='p-6 rounded-full bg-gray-800/50'>
+            <TicketIcon className='w-12 h-12 text-gray-600' />
           </div>
-          <div className='flex flex-col md:items-end md:text-right justify-between p-4'>
-            <div className='flex items-center gap-4'>
-              <p className='text-2xl font-semibold mb-3'>{currency}{item.amount}</p>
-              {!item.isPaid && <button className='bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay Now</button>}
-            </div>
-            <div className='text-sm'>
-              <p><span className='text-gray-400'>Total Tickets:</span>{item.bookedSeats.length}</p>
-              <p><span className='text-gray-400'>Seat Bumber:</span>{item.bookedSeats.join(",")}</p>
-
-
-            </div>
-          </div>
-
-
+          <h2 className='text-xl font-semibold'>No bookings yet</h2>
+          <p className='text-gray-500'>Your movie tickets will appear here</p>
         </div>
-      ))}
+      ) : (
+        <div className='space-y-4 stagger-children'>
+          {bookings.map((item, index) => (
+            <div key={index} className='flex flex-col md:flex-row justify-between bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 max-w-3xl hover:border-primary/20 transition-all duration-300 group'>
+              <div className='flex flex-col md:flex-row gap-4'>
+                <img src={item.show.movie.poster_path} alt={item.show.movie.title} className='md:w-40 aspect-video md:aspect-[3/4] h-auto object-cover object-center rounded-lg' />
+                <div className='flex flex-col justify-between py-1'>
+                  <div>
+                    <p className='text-lg font-semibold group-hover:text-primary transition-colors'>{item.show.movie.title}</p>
+                    <p className='text-gray-500 text-sm mt-1'>{timeFormat(item.show.movie.runtime)}</p>
+                  </div>
+                  <div className='flex items-center gap-4 mt-3 text-sm text-gray-400'>
+                    <div className='flex items-center gap-1.5'>
+                      <CalendarIcon className='w-3.5 h-3.5' />
+                      {dateFormat(item.show.showDateTime)}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-
-
-
-
+              <div className='flex flex-col md:items-end justify-between py-1 mt-4 md:mt-0'>
+                <div className='flex items-center gap-3'>
+                  <p className='text-2xl font-bold'>{currency}{item.amount?.toLocaleString()}</p>
+                  {!item.isPaid && (
+                    <button className='bg-primary hover:bg-primary-dull px-4 py-1.5 text-sm rounded-full font-medium cursor-pointer transition-all active:scale-95 hover:shadow-lg hover:shadow-primary/20'>
+                      Pay Now
+                    </button>
+                  )}
+                </div>
+                <div className='text-sm mt-3 space-y-1'>
+                  <p className='flex items-center gap-1.5'>
+                    <TicketIcon className='w-3.5 h-3.5 text-gray-500' />
+                    <span className='text-gray-500'>Tickets:</span>
+                    <span className='font-medium'>{item.bookedSeats.length}</span>
+                  </p>
+                  <p className='flex items-center gap-1.5'>
+                    <ArmchairIcon className='w-3.5 h-3.5 text-gray-500' />
+                    <span className='text-gray-500'>Seats:</span>
+                    <span className='font-medium'>{item.bookedSeats.join(", ")}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  ) : <Loading />
+  )
 }
 
 export default MyBookings

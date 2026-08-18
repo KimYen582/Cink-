@@ -3,11 +3,12 @@ import { StarIcon, CheckIcon, DeleteIcon } from 'lucide-react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { kConverter } from '../../lib/kConverter';
-import { useAuth } from '@clerk/clerk-react';
+import { useAppContext } from '../../context/AppContext';
+import { getMovies, createShow } from '../../services/adminService';
+import toast from 'react-hot-toast';
 
 const AddShows = () => {
-    const currency = import.meta.env.VITE_CURRENCY || '$';
-    const { getToken } = useAuth();
+    const { currency } = useAppContext();
 
     const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState(null);
@@ -18,15 +19,10 @@ const AddShows = () => {
 
     const fetchNowPlayingMovies = async () => {
         try {
-            const token = await getToken();
-            const response = await fetch('http://localhost:3000/api/admin/movies', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Failed to fetch movies');
-            setNowPlayingMovies(data.movies);
+            const movies = await getMovies();
+            setNowPlayingMovies(movies);
         } catch (error) {
-            console.error(error);
+            console.error('Failed to load movies:', error);
         } finally {
             setLoading(false);
         }
@@ -67,22 +63,14 @@ const AddShows = () => {
         }
 
         try {
-            const token = await getToken();
             const requests = Object.entries(dateTimeSelection).flatMap(([date, times]) =>
                 times.map((time) => {
                     const dateTime = new Date(`${date}T${time}:00Z`).toISOString();
-                    return fetch('http://localhost:3000/api/admin/shows', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            movieId: selectedMovie,
-                            showDateTime: dateTime,
-                            showPrice: Number(showPrice),
-                            hall: 'A',
-                        }),
+                    return createShow({
+                        movieId: selectedMovie,
+                        showDateTime: dateTime,
+                        showPrice: Number(showPrice),
+                        hall: 'A',
                     });
                 })
             );
@@ -91,10 +79,10 @@ const AddShows = () => {
             setDateTimeSelection({});
             setShowPrice('');
             setDateTimeInput('');
-            alert('Shows added successfully');
+            toast.success('Shows added successfully');
         } catch (error) {
-            console.error(error);
-            alert('Failed to add shows');
+            console.error('Failed to add shows:', error);
+            toast.error('Failed to add shows');
         }
     };
 

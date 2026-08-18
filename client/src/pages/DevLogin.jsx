@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const DevLogin = () => {
   const [email, setEmail] = useState('admin@cin.com');
@@ -13,15 +14,7 @@ const DevLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
+      const data = await api.post('/auth/login', { email });
 
       if (data.success) {
         localStorage.setItem('auth_token', data.token);
@@ -35,7 +28,7 @@ const DevLogin = () => {
         toast.error(data.message || 'Login failed');
       }
     } catch (error) {
-      toast.error('Login error: ' + error.message);
+      toast.error('Login error: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }

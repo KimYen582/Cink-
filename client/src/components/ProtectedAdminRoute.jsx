@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
+import api from '../services/api';
 
 const getUserRole = (user) => {
   const role = user?.publicMetadata?.role ?? user?.privateMetadata?.role ?? user?.unsafeMetadata?.role;
@@ -27,12 +28,7 @@ const ProtectedAdminRoute = () => {
       const token = localStorage.getItem('auth_token');
       if (token) {
         try {
-          const response = await fetch('http://localhost:3000/api/auth/me', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const data = await response.json();
+          const data = await api.get('/auth/me');
           if (data.success) {
             setLocalUser(data.user);
           }

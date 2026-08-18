@@ -2,26 +2,21 @@ import React, { useState, useEffect } from 'react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
-import { useAuth } from '@clerk/clerk-react';
+import { useAppContext } from '../../context/AppContext';
+import { getBookings } from '../../services/adminService';
 
 const ListBookings = () => {
-    const currency = import.meta.env.VITE_CURRENCY || '$';
-    const { getToken } = useAuth();
+    const { currency } = useAppContext();
 
     const [bookings, setBookings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const getAllBookings = async () => {
         try {
-            const token = await getToken();
-            const response = await fetch('http://localhost:3000/api/admin/bookings', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Failed to fetch bookings');
-            setBookings(data.bookings || []);
+            const data = await getBookings();
+            setBookings(data);
         } catch (error) {
-            console.error(error);
+            console.error('Failed to load bookings:', error);
         } finally {
             setIsLoading(false);
         }

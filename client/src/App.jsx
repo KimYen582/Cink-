@@ -16,13 +16,14 @@ import ListShows from './pages/admin/ListShows'
 import AddShows from './pages/admin/AddShows'
 import Dashboard from './pages/admin/Dashboard'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
+import { AppProvider } from './context/AppContext'
 
 const App = () => {
 
   const isAdminRoute = useLocation().pathname.startsWith('/admin')
 
   return (
-    <>
+    <AppProvider>
       <Toaster />
       {!isAdminRoute && <Navbar />}
       <Routes>
@@ -44,7 +45,7 @@ const App = () => {
         </Route>
       </Routes>
       {!isAdminRoute && <Footer />}
-    </>
+    </AppProvider>
   )
 }
 
