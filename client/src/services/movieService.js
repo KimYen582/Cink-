@@ -5,7 +5,10 @@ import api from './api';
  */
 export const getShows = async () => {
   const data = await api.get('/shows');
-  return data.shows || [];
+  return data.shows ? data.shows.map(show => ({
+    ...show.movie,
+    _id: show._id // Keep show._id for navigation routing
+  })) : [];
 };
 
 /**
