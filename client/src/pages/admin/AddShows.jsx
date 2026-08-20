@@ -93,7 +93,7 @@ const AddShows = () => {
     return !loading && nowPlayingMovies.length > 0 ? (
         <>
             <Title text1="Add" text2="Shows" />
-            <p className="mt-10 text-lg font-medium">Now Playing Movies</p>
+            <p className="mt-10 text-lg font-medium">Phim đang chiếu</p>
             <div className="overflow-x-auto pb-4">
                 <div className="group flex flex-wrap gap-4 mt-4 w-max">
                     {nowPlayingMovies.map((movie) => (
@@ -107,7 +107,7 @@ const AddShows = () => {
                                         <StarIcon className="w-4 h-4 text-primary fill-primary" />
                                         {movie.vote_average?.toFixed(1) || '0.0'}
                                     </p>
-                                    <p className="text-gray-300">{kConverter(movie.vote_count || 0)} Votes</p>
+                                    <p className="text-gray-300">{kConverter(movie.vote_count || 0)} Số phiếu</p>
                                 </div>
                             </div>
                             {selectedMovie === movie._id && (
@@ -123,7 +123,7 @@ const AddShows = () => {
             </div>
 
             <div className="mt-8">
-                <label className="block text-sm font-medium mb-2">Show Price</label>
+                <label className="block text-sm font-medium mb-2">Hiển thị giá</label>
                 <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
                     <p className="text-gray-400 text-sm">{currency}</p>
                     <input min={0} type="number" value={showPrice} onChange={(e) => setShowPrice(e.target.value)} placeholder="Enter show price" className="outline-none" />
@@ -131,18 +131,19 @@ const AddShows = () => {
             </div>
 
             <div className="mt-6">
-                <label className="block text-sm font-medium mb-2">Select Date and Time</label>
+                <label className="block text-sm font-medium mb-2">Chọn ngày và giờ</label>
                 <div className="inline-flex gap-5 border border-gray-600 p-1 pl-3 rounded-lg">
                     <input type="datetime-local" value={dateTimeInput} onChange={(e) => setDateTimeInput(e.target.value)} className="outline-none rounded-md" />
                     <button onClick={handleDateTimeAdd} className="bg-primary/80 text-white px-3 py-2 text-sm rounded-lg hover:bg-primary cursor-pointer">
-                        Add Time
+                        Thêm thời gian
                     </button>
                 </div>
             </div>
 
             {Object.keys(dateTimeSelection).length > 0 && (
                 <div className="mt-6">
-                    <h2 className="mb-2">Selected Date-Time</h2>
+                    <h2 className="mb-2">
+                        Ngày-giờ đã chọn</h2>
                     <ul className="space-y-3">
                         {Object.entries(dateTimeSelection).map(([date, times]) => (
                             <li key={date}>

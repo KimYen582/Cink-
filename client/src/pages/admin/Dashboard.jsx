@@ -67,7 +67,7 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-14 mb-6 flex items-center justify-between">
-                <p className="text-2xl font-bold tracking-tight">Active Shows Schedule</p>
+                <p className="text-2xl font-bold tracking-tight">Lịch chiếu</p>
             </div>
             
             {/* Elegant Active Shows Grid */}

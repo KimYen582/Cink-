@@ -19,13 +19,13 @@ const FeaturedSection = () => {
                 <div>
                     <div className='flex items-center gap-2 mb-2'>
                         <Sparkles className="w-5 h-5 text-primary" />
-                        <span className='text-primary font-bold tracking-widest uppercase text-sm'>Trending</span>
+                        <span className='text-primary font-bold tracking-widest uppercase text-sm'>Thịnh hành</span>
                     </div>
-                    <h2 className='text-4xl md:text-5xl font-bold tracking-tight text-white'>Now Showing</h2>
-                    <p className='text-gray-400 mt-3 text-lg max-w-xl'>Experience the magic of cinema with our handpicked selection of current blockbusters.</p>
+                    <h2 className='text-4xl md:text-5xl font-bold tracking-tight text-white'>Đang chiếu</h2>
+                    <p className='text-gray-400 mt-3 text-lg max-w-xl'>Hãy trải nghiệm sự kỳ diệu của điện ảnh với tuyển chọn các bộ phim bom tấn hiện hành do chúng tôi lựa chọn kỹ lưỡng.</p>
                 </div>
                 <button onClick={() => navigate('/movies')} className='group hidden md:flex items-center gap-2 text-sm text-gray-400 hover:text-white cursor-pointer transition-colors bg-white/5 px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/10'>
-                    View All Movies
+                    Xem tất cả phim
                     <ArrowRight className='group-hover:translate-x-1 transition-transform w-4 h-4 text-primary' />
                 </button>
             </div>
@@ -45,7 +45,7 @@ const FeaturedSection = () => {
 
             <div className='flex justify-center mt-16 md:hidden relative z-10'>
                 <button onClick={() => { navigate('/movies'); scrollTo(0, 0) }} className='flex items-center gap-2 px-8 py-3.5 text-sm bg-primary hover:bg-primary-dull transition-all duration-300 rounded-full font-bold shadow-[0_0_20px_rgba(225,29,72,0.4)]'>
-                    View All Movies
+                    Xem tất cả phim
                     <ArrowRight className="w-4 h-4" />
                 </button>
             </div>

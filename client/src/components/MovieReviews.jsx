@@ -6,13 +6,14 @@ import { submitReview } from '../services/movieService';
 
 const MovieReviews = ({ movieId, reviews = [], onReviewAdded }) => {
   const { isSignedIn } = useUser();
+  const canReview = isSignedIn || Boolean(localStorage.getItem('auth_token'));
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isSignedIn) {
+    if (!canReview) {
       toast.error('You need to be logged in to write a review.');
       return;
     }
@@ -29,7 +30,7 @@ const MovieReviews = ({ movieId, reviews = [], onReviewAdded }) => {
       setRating(5);
       if (onReviewAdded) onReviewAdded();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to submit review. You may have already reviewed this movie.');
+      toast.error(error.message || 'Failed to submit review. You may have already reviewed this movie.');
     } finally {
       setIsSubmitting(false);
     }
@@ -40,7 +41,7 @@ const MovieReviews = ({ movieId, reviews = [], onReviewAdded }) => {
       <h2 className="text-2xl font-semibold mb-6">User Reviews</h2>
       
       {/* Review Form */}
-      {isSignedIn ? (
+      {canReview ? (
         <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 p-6 rounded-2xl mb-10">
           <h3 className="text-lg font-medium mb-4">Write a Review</h3>
           <div className="flex items-center gap-2 mb-4">

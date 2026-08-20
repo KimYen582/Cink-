@@ -26,14 +26,14 @@ const Movies = () => {
 
     // Search filter
     if (searchTerm) {
-      result = result.filter(show => 
+      result = result.filter(show =>
         show.movie?.title?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     // Genre filter
     if (genreFilter !== 'All') {
-      result = result.filter(show => 
+      result = result.filter(show =>
         show.movie?.genres?.some(g => g.name === genreFilter)
       )
     }

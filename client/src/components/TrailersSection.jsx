@@ -23,8 +23,8 @@ const TrailersSection = () => {
             <div className='max-w-[960px] mx-auto'>
                 <div className='flex items-center justify-between mb-8'>
                     <div>
-                        <p className='text-white font-semibold text-xl'>Latest Trailers</p>
-                        <p className='text-gray-500 text-sm mt-1'>Watch the newest movie trailers</p>
+                        <p className='text-white font-semibold text-xl'>Các đoạn giới thiệu mới nhất</p>
+                        <p className='text-gray-500 text-sm mt-1'>Xem các đoạn giới thiệu phim mới nhất</p>
                     </div>
                     <span className='text-xs text-gray-500 bg-white/5 border border-white/10 px-3 py-1 rounded-full'>
                         {activeIndex + 1} / {dummyTrailers.length}

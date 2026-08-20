@@ -70,7 +70,15 @@ const Navbar = () => {
       </div>
 
       <div className='flex items-center gap-6'>
-        <SearchIcon className='max-md:hidden w-5 h-5 cursor-pointer text-gray-400 hover:text-white transition-colors' />
+        <button
+          type='button'
+          title='Search movies'
+          aria-label='Search movies'
+          onClick={() => navigate('/movies')}
+          className='max-md:hidden p-1 text-gray-400 hover:text-white transition-colors cursor-pointer'
+        >
+          <SearchIcon className='w-5 h-5' />
+        </button>
         {
           !user ? (
             <button onClick={openSignIn} className='px-5 py-2 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition-all duration-200 rounded-full font-medium cursor-pointer hover:shadow-lg hover:shadow-primary/20 active:scale-95'>Login</button>

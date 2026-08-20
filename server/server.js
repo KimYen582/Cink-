@@ -45,12 +45,14 @@ app.use(cors({
 console.log('Mounting auth routes...');
 app.use("/api/auth", authRoutes);
 
+// Clerk context is available to both public routes and protected handlers.
+// Public endpoints still decide individually whether authentication is required.
+app.use(clerkMiddleware());
+
 // Public routes (No auth required)
 app.use("/api/movies", movieRoutes);
 app.use("/api/shows", showRoutes);
 
-// Clerk middleware (dùng cho routes cần auth)
-app.use(clerkMiddleware());
 console.log('Mounting user routes...');
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);

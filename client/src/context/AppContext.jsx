@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useAuth } from '@clerk/clerk-react';
 import { setClerkGetToken } from '../services/api';
 import { getShows as fetchShowsAPI } from '../services/movieService';
-import { dummyShowsData, dummyDateTimeData } from '../assets/assets';
 
 const AppContext = createContext(null);
 
@@ -25,8 +24,7 @@ export const AppProvider = ({ children }) => {
       const data = await fetchShowsAPI();
       setShows(data);
     } catch {
-      // Fallback to dummy data
-      setShows(dummyShowsData);
+      setShows([]);
     } finally {
       setLoading(false);
     }
@@ -48,7 +46,7 @@ export const AppProvider = ({ children }) => {
       if (!movie) return null;
       return {
         movie,
-        dateTime: dummyDateTimeData[id] || {},
+        dateTime: movie.dateTime || {},
       };
     },
     [shows]

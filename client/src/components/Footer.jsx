@@ -56,31 +56,31 @@ const Footer = () => {
 
           <div>
             <h2 className="font-semibold text-white mb-5">
-              Quick Links
+              Liên kết
             </h2>
             <ul className="text-sm space-y-3">
-              <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
-              <li><Link to="/movies" className="hover:text-white transition-colors">Movies</Link></li>
-              <li><Link to="/favorites" className="hover:text-white transition-colors">Favorites</Link></li>
-              <li><Link to="/my-bookings" className="hover:text-white transition-colors">My Bookings</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">Trang chủ</Link></li>
+              <li><Link to="/movies" className="hover:text-white transition-colors">Phim</Link></li>
+              <li><Link to="/favorites" className="hover:text-white transition-colors">Yêu thích</Link></li>
+              <li><Link to="/my-bookings" className="hover:text-white transition-colors">Đặt vé</Link></li>
             </ul>
           </div>
 
           <div>
             <h2 className="font-semibold text-white mb-5">
-              Company
+              Về CinK
             </h2>
             <ul className="text-sm space-y-3">
-              <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Về chúng tôi</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Liên hệ</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Chính sách quyền riêng tư</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Điều khoản dịch vụ</a></li>
             </ul>
           </div>
 
           <div>
             <h2 className="font-semibold text-white mb-5">
-              Get in touch
+              Liên hệ
             </h2>
             <div className="text-sm space-y-3">
               <p className="hover:text-white transition-colors">+84-123-456-789</p>

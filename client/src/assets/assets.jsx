@@ -16,64 +16,6 @@ export const assets = {
   screenImage
 
   }
-export const dummyShowsData = [
-  {
-    _id: "1",
-    title: "Movie 1",
-    backdrop_path: "/movie1.jpg",
-    poster_path: poster1,
-    release_date: "2026-01-15",
-    genres: [
-      { name: "Action" },
-      { name: "Adventure" }
-    ],
-    runtime: 120,
-    vote_average: 8.5,
-    vote_count: 12500
-  },
-  {
-    _id: "2",
-    title: "Movie 2",
-    backdrop_path: "/movie2.jpg",
-    poster_path: poster1,
-    release_date: "2026-02-20",
-    genres: [
-      { name: "Comedy" },
-      { name: "Drama" }
-    ],
-    runtime: 105,
-    vote_average: 7.8,
-    vote_count: 9800
-  },
-  {
-    _id: "3",
-    title: "Movie 3",
-    backdrop_path: "/movie3.jpg",
-    poster_path: poster1,
-    release_date: "2026-03-10",
-    genres: [
-      { name: "Horror" },
-      { name: "Thriller" }
-    ],
-    runtime: 115,
-    vote_average: 8.1,
-    vote_count: 7600
-  },
-  {
-    _id: "4",
-    title: "Movie 4",
-    backdrop_path: "/movie4.jpg",
-    poster_path: poster1,
-    release_date: "2026-04-05",
-    genres: [
-      { name: "Romance" },
-      { name: "Drama" }
-    ],
-    runtime: 110,
-    vote_average: 7.9,
-    vote_count: 6200
-  }
-];
 
 export const dummyTrailers = [
   {
@@ -153,19 +95,19 @@ export const dummyDashboardData = {
     activeShows: [
         {
             _id: "show_001",
-            movie: dummyShowsData[0],
+            movie: null,
             showDateTime: "2026-08-20T19:00:00",
             showPrice: 100000
         },
         {
             _id: "show_002",
-            movie: dummyShowsData[1],
+            movie: null,
             showDateTime: "2026-08-20T20:00:00",
             showPrice: 120000
         },
         {
             _id: "show_003",
-            movie: dummyShowsData[2],
+            movie: null,
             showDateTime: "2026-08-21T19:30:00",
             showPrice: 100000
         }

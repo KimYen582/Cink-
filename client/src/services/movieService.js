@@ -5,10 +5,39 @@ import api from './api';
  */
 export const getShows = async () => {
   const data = await api.get('/shows');
-  return data.shows ? data.shows.map(show => ({
-    ...show.movie,
-    _id: show._id // Keep show._id for navigation routing
-  })) : [];
+  if (!data.shows) return [];
+
+  const movies = new Map();
+  data.shows.forEach((show) => {
+    if (!show.movie?._id || !show.showDateTime) return;
+    const date = new Date(show.showDateTime);
+    const dateKey = date.toISOString().slice(0, 10);
+    const time = date.toISOString().slice(11, 16);
+    const existingMovie = movies.get(show.movie._id);
+
+    if (existingMovie) {
+      const times = existingMovie.dateTime[dateKey] || [];
+      if (!times.includes(time)) {
+        existingMovie.dateTime[dateKey] = [...times, time].sort();
+        existingMovie.showIds[dateKey][time] = show._id;
+      }
+      return;
+    }
+
+    movies.set(show.movie._id, {
+      ...show.movie,
+      _id: show._id,
+      movieId: show.movie._id,
+      showDateTime: show.showDateTime,
+      showPrice: show.showPrice,
+      hall: show.hall,
+      occupiedSeats: show.occupiedSeats || {},
+      dateTime: { [dateKey]: [time] },
+      showIds: { [dateKey]: { [time]: show._id } },
+    });
+  });
+
+  return Array.from(movies.values());
 };
 
 /**

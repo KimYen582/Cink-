@@ -16,6 +16,8 @@ import ListBookings from './pages/admin/ListBookings'
 import ListShows from './pages/admin/ListShows'
 import AddShows from './pages/admin/AddShows'
 import Dashboard from './pages/admin/Dashboard'
+import ListMovies from './pages/admin/ListMovies'
+import ListUsers from './pages/admin/ListUsers'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import { AppProvider } from './context/AppContext'
 
@@ -43,6 +45,8 @@ const App = () => {
             <Route path="add-shows" element={<AddShows />} />
             <Route path="list-shows" element={<ListShows />} />
             <Route path="list-bookings" element={<ListBookings/>} />
+            <Route path="list-movies" element={<ListMovies />} />
+            <Route path="list-users" element={<ListUsers />} />
           </Route>
         </Route>
       </Routes>

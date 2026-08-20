@@ -2,19 +2,32 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
+import Session from '../models/Session.js';
 import { getAuth } from '@clerk/express';
 
 const router = express.Router();
 
 // Middleware to ensure user is logged in
-const ensureUser = (req, res, next) => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401);
-    throw new Error('Not authorized, please login');
+const ensureUser = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const session = await Session.findOne({ token });
+      if (session?.userId && session.expiresAt > new Date()) {
+        req.userId = session.userId;
+        return next();
+      }
+    }
+
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Not authorized, please login' });
+    }
+    req.userId = userId;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
   }
-  req.userId = userId;
-  next();
 };
 
 /**
@@ -28,7 +41,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const bookings = await Booking.find({ user: req.userId })
       .populate('movie')
-      .populate('show')
+      .populate({ path: 'show', populate: { path: 'movie' } })
       .sort({ createdAt: -1 });
 
     const formattedBookings = bookings.map((booking) => ({
@@ -106,7 +119,15 @@ router.post(
       orderCode,
     });
 
-    const createdBooking = await booking.save();
+    let createdBooking;
+    try {
+      createdBooking = await booking.save();
+    } catch (error) {
+      for (const seat of seats) delete showOccupiedSeats[seat];
+      show.occupiedSeats = showOccupiedSeats;
+      await show.save();
+      throw error;
+    }
 
     res.status(201).json({
       success: true,

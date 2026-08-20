@@ -8,7 +8,7 @@ const Loading = () => {
                     <div className='animate-spin rounded-full h-14 w-14 border-2 border-gray-700 border-t-primary'></div>
                     <div className='absolute inset-0 animate-spin rounded-full h-14 w-14 border-2 border-transparent border-b-primary/30' style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
                 </div>
-                <p className="text-gray-500 text-sm animate-pulse">Loading...</p>
+                <p className="text-gray-500 text-sm animate-pulse">Đang tải...</p>
             </div>
         </div>
     )

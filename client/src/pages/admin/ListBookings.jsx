@@ -3,13 +3,16 @@ import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
 import { useAppContext } from '../../context/AppContext';
-import { getBookings } from '../../services/adminService';
+import { deleteBooking, getBookings, updateBooking } from '../../services/adminService';
+import { CheckIcon, Trash2Icon, XIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ListBookings = () => {
     const { currency } = useAppContext();
 
     const [bookings, setBookings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [deleteId, setDeleteId] = useState(null);
 
     const getAllBookings = async () => {
         try {
@@ -20,6 +23,13 @@ const ListBookings = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const changeStatus = async (id, status) => {
+        try { await updateBooking(id, { status }); toast.success('Booking updated'); await getAllBookings(); } catch (error) { toast.error(error.message); }
+    };
+    const remove = async (id) => {
+        try { await deleteBooking(id); toast.success('Booking deleted'); await getAllBookings(); } catch (error) { toast.error(error.message); }
     };
 
     useEffect(() => {
@@ -38,6 +48,8 @@ const ListBookings = () => {
                             <th className="p-2 font-medium">Show Time</th>
                             <th className="p-2 font-medium">Seats</th>
                             <th className="p-2 font-medium">Amount</th>
+                            <th className="p-2 font-medium">Status</th>
+                            <th className="p-2 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm font-light">
@@ -48,6 +60,8 @@ const ListBookings = () => {
                                 <td className="p-2">{item.showDateTime ? dateFormat(item.showDateTime) : 'N/A'}</td>
                                 <td className="p-2">{(item.seats || []).join(', ') || 'N/A'}</td>
                                 <td className="p-2">{currency} {item.amount}</td>
+                                <td className="p-2"><select value={item.status} onChange={(event) => changeStatus(item._id, event.target.value)} className="bg-black/20 border border-white/10 rounded px-2 py-1"><option value="pending">pending</option><option value="confirmed">confirmed</option><option value="cancelled">cancelled</option><option value="expired">expired</option></select></td>
+                                <td className="p-2">{deleteId === item._id ? <><button type="button" title="Confirm delete" onClick={() => remove(item._id)} className="p-2 text-red-400"><CheckIcon size={16} /></button><button type="button" title="Cancel delete" onClick={() => setDeleteId(null)} className="p-2"><XIcon size={16} /></button></> : <button type="button" title="Delete" onClick={() => remove(item._id)} className="p-2 text-red-400"><Trash2Icon size={16} /></button>}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -2,18 +2,28 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import Movie from '../models/Movie.js';
 import User from '../models/User.js';
+import Session from '../models/Session.js';
 import { getAuth } from '@clerk/express';
 
 const router = express.Router();
 
-const ensureUser = (req, res, next) => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401);
-    throw new Error('Not authorized, please login');
+const ensureUser = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const session = await Session.findOne({ token });
+      if (session?.userId && session.expiresAt > new Date()) {
+        req.userId = session.userId;
+        return next();
+      }
+    }
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ success: false, message: 'Not authorized, please login' });
+    req.userId = userId;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
   }
-  req.userId = userId;
-  next();
 };
 
 /**

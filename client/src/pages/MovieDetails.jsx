@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import BlurCircle from '../components/BlurCircle'
 import { Heart, PlayCircleIcon, StarIcon, Clock, Calendar, Film } from 'lucide-react'
@@ -9,16 +9,26 @@ import MovieReviews from '../components/MovieReviews'
 import { MovieDetailsSkeleton } from '../components/Loading'
 import useShow from '../hooks/useShow'
 import { useAppContext } from '../context/AppContext'
+import { isFavorite, toggleFavorite } from '../services/favoriteService'
 
 const MovieDetails = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { show, loading, error } = useShow(id)
   const { shows } = useAppContext()
+  const [favorite, setFavorite] = useState(() => isFavorite(id))
+
+  useEffect(() => {
+    setFavorite(isFavorite(id))
+  }, [id])
 
   const handleReviewAdded = () => {
     // Quick refresh to get new reviews
     window.location.reload();
+  }
+
+  const handleFavorite = () => {
+    setFavorite(toggleFavorite({ ...show.movie, _id: id }))
   }
 
   if (loading) return <MovieDetailsSkeleton />
@@ -81,8 +91,8 @@ const MovieDetails = () => {
             <a href="#dateSelect" className='px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition-all duration-200 rounded-full font-medium cursor-pointer active:scale-95 hover:shadow-lg hover:shadow-primary/20'>
               Đặt vé
             </a>
-            <button className='bg-white/8 hover:bg-white/12 border border-white/10 p-3 rounded-full transition-all duration-200 cursor-pointer active:scale-95 hover:border-primary/30 group'>
-              <Heart className='w-5 h-5 group-hover:text-primary transition-colors' />
+            <button type='button' title={favorite ? 'Remove from favorites' : 'Add to favorites'} onClick={handleFavorite} className={`bg-white/8 hover:bg-white/12 border border-white/10 p-3 rounded-full transition-all duration-200 cursor-pointer active:scale-95 hover:border-primary/30 group ${favorite ? 'text-primary' : ''}`}>
+              <Heart className='w-5 h-5 group-hover:text-primary transition-colors' fill={favorite ? 'currentColor' : 'none'} />
             </button>
           </div>
         </div>
@@ -106,7 +116,7 @@ const MovieDetails = () => {
       )}
 
       <MovieReviews 
-        movieId={show.movie._id} 
+        movieId={show.movie.movieId || show.movie._id} 
         reviews={show.movie.reviews || []} 
         onReviewAdded={handleReviewAdded} 
       />
