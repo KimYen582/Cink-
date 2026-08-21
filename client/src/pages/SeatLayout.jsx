@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ClockIcon, ArrowRightIcon } from 'lucide-react'
-import { useAuth, useClerk } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import { assets } from '../assets/assets'
 import isoTimeFormat from '../lib/isoTimeFormat'
 import BlurCircle from '../components/BlurCircle'
@@ -18,8 +18,7 @@ const SeatLayout = () => {
   const [selectedTime, setSelectedTime] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { show, loading, error } = useShow(id)
-  const { isSignedIn } = useAuth()
-  const { openSignIn } = useClerk()
+  const { isLoggedIn } = useAuth()
 
   const navigate = useNavigate()
 
@@ -30,9 +29,8 @@ const SeatLayout = () => {
     if (selectedSeats.length === 0) {
       return toast('Please select at least one seat')
     }
-    if (!isSignedIn) {
+    if (!isLoggedIn) {
       toast.error('Please login to book tickets')
-      openSignIn()
       return
     }
 

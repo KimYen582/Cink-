@@ -4,26 +4,20 @@ import Stripe from 'stripe';
 import Booking from '../models/Booking.js';
 import Payment from '../models/Payment.js';
 import Session from '../models/Session.js';
-import { getAuth } from '@clerk/express';
 
 const router = express.Router();
 
 const ensureUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    if (token) {
-      const session = await Session.findOne({ token });
-      if (session?.userId && session.expiresAt > new Date()) {
-        req.userId = session.userId;
-        return next();
-      }
+    if (!token) return res.status(401).json({ success: false, message: 'Not authorized, please login' });
+    
+    const session = await Session.findOne({ token });
+    if (!session || session.expiresAt < new Date()) {
+      return res.status(401).json({ success: false, message: 'Token invalid or expired' });
     }
-
-    const { userId } = getAuth(req);
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Not authorized, please login' });
-    }
-    req.userId = userId;
+    
+    req.userId = session.userId;
     next();
   } catch (error) {
     res.status(401).json({ success: false, message: error.message || 'Not authorized, please login' });

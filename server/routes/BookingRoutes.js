@@ -3,38 +3,27 @@ import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
 import Session from '../models/Session.js';
-import { getAuth, verifyToken } from '@clerk/express';
 
 const router = express.Router();
 
-// Middleware to ensure user is logged in
-// Middleware to ensure user is logged in
 const ensureUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    
-    // 1. Try local session (Admin/Dev)
-    if (token) {
-      const session = await Session.findOne({ token });
-      if (session?.userId && session.expiresAt > new Date()) {
-        req.userId = session.userId;
-        return next();
-      }
-    }
 
-    // 2. Rely on clerkMiddleware's getAuth
-    const { userId } = getAuth(req);
-    
-    if (!userId) {
-      console.log('[BookingRoutes] ensureUser failed: getAuth returned no userId. Token was:', token ? 'Present' : 'Missing');
+    if (!token) {
       return res.status(401).json({ success: false, message: 'Not authorized, please login' });
     }
-    
-    req.userId = userId;
+
+    const session = await Session.findOne({ token });
+
+    if (!session || session.expiresAt < new Date()) {
+      return res.status(401).json({ success: false, message: 'Token invalid or expired' });
+    }
+
+    req.userId = session.userId;
     next();
   } catch (error) {
-    console.error('[BookingRoutes] Auth error:', error.message);
-    res.status(401).json({ success: false, message: error.message || 'Unknown Auth Error' });
+    res.status(401).json({ success: false, message: error.message || 'Auth error' });
   }
 };
 

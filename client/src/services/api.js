@@ -10,41 +10,17 @@ const api = axios.create({
   },
 });
 
-// Store Clerk getToken function reference (set from AppContext)
-let clerkGetToken = null;
-
-export const setClerkGetToken = (getTokenFn) => {
-  clerkGetToken = getTokenFn;
-};
-
-// Request interceptor: attach auth token
+// Request interceptor: attach auth token from localStorage
 api.interceptors.request.use(
-  async (config) => {
+  (config) => {
     // If Authorization is explicitly set in the request, skip auto-injection
-    if (config.headers.Authorization || (config.headers.get && config.headers.get('Authorization'))) {
+    if (config.headers.Authorization) {
       return config;
     }
-
-    let token = null;
-
-    // Try Clerk token first
-    if (clerkGetToken) {
-      try {
-        token = await clerkGetToken();
-      } catch {
-        // Clerk token not available, fall through
-      }
-    }
-
-    // Fallback to localStorage token (dev login)
-    if (!token) {
-      token = localStorage.getItem('auth_token');
-    }
-
+    const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -61,16 +37,11 @@ api.interceptors.response.use(
 
     const status = error.response?.status;
 
-    // Log non-auth errors in development
     if (import.meta.env.DEV && status !== 401) {
       console.error(`[API Error] ${status}: ${message}`, error.config?.url);
     }
 
-    return Promise.reject({
-      message,
-      status,
-      original: error,
-    });
+    return Promise.reject({ message, status, original: error });
   }
 );
 

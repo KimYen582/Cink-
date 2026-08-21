@@ -13,7 +13,6 @@ import stripeWebhookRoute from "./routes/StripeWebhookRoute.js";
 import { notFound, errorHandler } from './middlewares/errorHandler.js';
 
 import connectDB from './configs/db.js';
-import { clerkMiddleware } from '@clerk/express';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -47,22 +46,14 @@ app.use(cors({
   credentials: true,
 }));
 
-// Auth routes BEFORE clerkMiddleware
-console.log('Mounting auth routes...');
-app.use("/api/auth", authRoutes);
 
-// Clerk context is available to both public routes and protected handlers.
-// Public endpoints still decide individually whether authentication is required.
-app.use(clerkMiddleware({
-  secretKey: process.env.CLERK_SECRET_KEY,
-  publishableKey: process.env.CLERK_PUBLISHABLE_KEY
-}));
 
 // Public routes (No auth required)
 app.use("/api/movies", movieRoutes);
 app.use("/api/shows", showRoutes);
 
-console.log('Mounting user routes...');
+// Auth routes
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);

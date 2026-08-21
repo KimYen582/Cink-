@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 import connectDB from "./configs/db.js";
@@ -304,7 +305,16 @@ async function seedDatabase() {
   await Booking.deleteMany({});
   await Payment.deleteMany({});
 
-  const createdUsers = await User.insertMany(users);
+  // Hash password '123456' (or 'admin123' for admin) for all seeded users
+  const hashedAdminPassword = await bcrypt.hash('admin123', 10);
+  const hashedUserPassword = await bcrypt.hash('123456', 10);
+
+  const usersWithPasswords = users.map(u => ({
+    ...u,
+    password: u.role === 'admin' ? hashedAdminPassword : hashedUserPassword
+  }));
+
+  const createdUsers = await User.insertMany(usersWithPasswords);
   const createdMovies = await Movie.insertMany(movies);
   const createdShows = await Show.insertMany(shows);
   const createdBookings = await Booking.insertMany(bookings);

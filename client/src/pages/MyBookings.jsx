@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useAuth, useClerk } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import BlurCircle from '../components/BlurCircle'
 import Loading from '../components/Loading'
@@ -14,8 +14,7 @@ const MyBookings = () => {
   const { currency } = useAppContext()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { isSignedIn, isLoaded } = useAuth()
-  const { openSignIn } = useClerk()
+  const { isLoggedIn, isLoaded } = useAuth()
 
   const [bookings, setBookings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -42,7 +41,7 @@ const MyBookings = () => {
   useEffect(() => {
     if (!isLoaded) return
 
-    if (!isSignedIn) {
+    if (!isLoggedIn) {
       setIsLoading(false)
       setAuthError(true)
       return
@@ -79,7 +78,7 @@ const MyBookings = () => {
     }
 
     handlePaymentReturn()
-  }, [isLoaded, isSignedIn]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, isLoggedIn]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePayNow = async (bookingId) => {
     const toastId = toast.loading('Redirecting to secure checkout...')
@@ -93,7 +92,7 @@ const MyBookings = () => {
 
   if (!isLoaded || isLoading) return <Loading />
 
-  if (authError || !isSignedIn) {
+  if (authError || !isLoggedIn) {
     return (
       <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh] animate-fade-in'>
         <BlurCircle top="100px" left="10%" />
@@ -106,10 +105,10 @@ const MyBookings = () => {
             <p className='text-gray-400 max-w-md mx-auto'>Sign in to see your bookings and manage payments.</p>
           </div>
           <button
-            onClick={() => openSignIn()}
+            onClick={() => navigate('/')}
             className="mt-4 px-8 py-3 bg-primary hover:bg-primary-dull transition-all duration-300 rounded-full font-medium"
           >
-            Login
+            Go Home
           </button>
         </div>
       </div>

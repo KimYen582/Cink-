@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Star } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuth } from '../context/AuthContext';
 import { submitReview } from '../services/movieService';
 
 const MovieReviews = ({ movieId, reviews = [], onReviewAdded }) => {
-  const { isSignedIn } = useUser();
-  const canReview = isSignedIn || Boolean(localStorage.getItem('auth_token'));
+  const { isLoggedIn } = useAuth();
+  const canReview = isLoggedIn;
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
