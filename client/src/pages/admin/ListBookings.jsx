@@ -38,18 +38,18 @@ const ListBookings = () => {
 
     return !isLoading ? (
         <>
-            <Title text1="List" text2="Bookings" />
+            <Title text1="Danh sách" text2="Đặt vé" />
             <div className="max-w-4xl mt-6 overflow-x-auto">
                 <table className="w-full border-collapse rounded-md overflow-hidden text-nowrap">
                     <thead>
                         <tr className="bg-primary/20 text-left text-white">
-                            <th className="p-2 font-medium pl-5">User Name</th>
-                            <th className="p-2 font-medium">Movie Name</th>
-                            <th className="p-2 font-medium">Show Time</th>
-                            <th className="p-2 font-medium">Seats</th>
-                            <th className="p-2 font-medium">Amount</th>
-                            <th className="p-2 font-medium">Status</th>
-                            <th className="p-2 font-medium">Actions</th>
+                            <th className="p-2 font-medium pl-5">Người dùng</th>
+                            <th className="p-2 font-medium">Tên Phim</th>
+                            <th className="p-2 font-medium">Thời gian chiếu</th>
+                            <th className="p-2 font-medium">Ghế</th>
+                            <th className="p-2 font-medium">Tổng tiền</th>
+                            <th className="p-2 font-medium">Trạng thái</th>
+                            <th className="p-2 font-medium">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm font-light">
@@ -60,8 +60,8 @@ const ListBookings = () => {
                                 <td className="p-2">{item.showDateTime ? dateFormat(item.showDateTime) : 'N/A'}</td>
                                 <td className="p-2">{(item.seats || []).join(', ') || 'N/A'}</td>
                                 <td className="p-2">{currency} {item.amount}</td>
-                                <td className="p-2"><select value={item.status} onChange={(event) => changeStatus(item._id, event.target.value)} className="bg-black/20 border border-white/10 rounded px-2 py-1"><option value="pending">pending</option><option value="confirmed">confirmed</option><option value="cancelled">cancelled</option><option value="expired">expired</option></select></td>
-                                <td className="p-2">{deleteId === item._id ? <><button type="button" title="Confirm delete" onClick={() => remove(item._id)} className="p-2 text-red-400"><CheckIcon size={16} /></button><button type="button" title="Cancel delete" onClick={() => setDeleteId(null)} className="p-2"><XIcon size={16} /></button></> : <button type="button" title="Delete" onClick={() => remove(item._id)} className="p-2 text-red-400"><Trash2Icon size={16} /></button>}</td>
+                                <td className="p-2"><select value={item.status} onChange={(event) => changeStatus(item._id, event.target.value)} className="bg-black/20 border border-white/10 rounded px-2 py-1"><option value="pending">Chờ xử lý</option><option value="confirmed">Đã xác nhận</option><option value="cancelled">Đã hủy</option><option value="expired">Hết hạn</option></select></td>
+                                <td className="p-2">{deleteId === item._id ? <><button type="button" title="Xác nhận xóa" onClick={() => remove(item._id)} className="p-2 text-red-400"><CheckIcon size={16} /></button><button type="button" title="Hủy xóa" onClick={() => setDeleteId(null)} className="p-2"><XIcon size={16} /></button></> : <button type="button" title="Xóa" onClick={() => setDeleteId(item._id)} className="p-2 text-red-400"><Trash2Icon size={16} /></button>}</td>
                             </tr>
                         ))}
                     </tbody>

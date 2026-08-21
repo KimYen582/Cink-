@@ -9,6 +9,7 @@ import movieRoutes from "./routes/MovieRoutes.js";
 import showRoutes from "./routes/ShowRoutes.js";
 import bookingRoutes from "./routes/BookingRoutes.js";
 import paymentRoutes from "./routes/PaymentRoutes.js";
+import stripeWebhookRoute from "./routes/StripeWebhookRoute.js";
 import { notFound, errorHandler } from './middlewares/errorHandler.js';
 
 import connectDB from './configs/db.js';
@@ -20,8 +21,13 @@ const port = process.env.PORT || 3000;
 // Kết nối MongoDB local
 await connectDB();
 
+// Webhook for Stripe MUST use raw body parser
+app.use('/api/webhook', express.raw({ type: 'application/json' }), stripeWebhookRoute);
+
 // Middleware
 app.use(express.json());
+
+
 
 // Request logging
 if (process.env.NODE_ENV !== 'production') {
@@ -29,7 +35,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Strict CORS configuration
-const allowedOrigins = process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ['http://localhost:5173'];
+const allowedOrigins = process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ['http://localhost:5173', 'http://127.0.0.1:5173'];
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -47,7 +53,10 @@ app.use("/api/auth", authRoutes);
 
 // Clerk context is available to both public routes and protected handlers.
 // Public endpoints still decide individually whether authentication is required.
-app.use(clerkMiddleware());
+app.use(clerkMiddleware({
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY
+}));
 
 // Public routes (No auth required)
 app.use("/api/movies", movieRoutes);

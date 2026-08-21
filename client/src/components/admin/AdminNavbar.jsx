@@ -15,13 +15,7 @@ const AdminNavbar = () => {
       </Link>
       
       <div className='flex items-center gap-4'>
-          <button className='relative p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5'>
-              <BellIcon className='w-5 h-5' />
-              <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border border-[#09090b]' />
-          </button>
-          <button className='p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5'>
-              <SettingsIcon className='w-5 h-5' />
-          </button>
+          {/* Unused icons removed as requested */}
       </div>
     </div>
   )

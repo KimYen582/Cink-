@@ -22,7 +22,7 @@ const ensureUser = async (req, res, next) => {
     req.userId = userId;
     next();
   } catch (error) {
-    res.status(401).json({ success: false, message: error.message });
+    res.status(401).json({ success: false, message: error.message || 'Not authorized, please login' });
   }
 };
 

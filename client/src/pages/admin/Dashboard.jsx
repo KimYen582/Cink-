@@ -21,10 +21,10 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     const dashboardCards = [
-        { title: 'Total Revenue', value: `${currency}${dashboardData.totalRevenue?.toLocaleString() || 0}`, icon: CircleDollarSignIcon, color: 'text-green-500', glow: 'shadow-[0_0_20px_rgba(34,197,94,0.3)]', bg: 'bg-green-500/10' },
-        { title: 'Total Bookings', value: dashboardData.totalBookings || '0', icon: ChartLineIcon, color: 'text-primary', glow: 'shadow-[0_0_20px_rgba(225,29,72,0.3)]', bg: 'bg-primary/10' },
-        { title: 'Active Shows', value: dashboardData.activeShows?.length || '0', icon: PlayCircleIcon, color: 'text-blue-500', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]', bg: 'bg-blue-500/10' },
-        { title: 'Total Users', value: dashboardData.totalUser || '0', icon: UsersIcon, color: 'text-purple-500', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]', bg: 'bg-purple-500/10' },
+        { title: 'Tổng Doanh Thu', value: `${currency}${dashboardData.totalRevenue?.toLocaleString() || 0}`, icon: CircleDollarSignIcon, color: 'text-green-500', glow: 'shadow-[0_0_20px_rgba(34,197,94,0.3)]', bg: 'bg-green-500/10' },
+        { title: 'Tổng Số Vé', value: dashboardData.totalBookings || '0', icon: ChartLineIcon, color: 'text-primary', glow: 'shadow-[0_0_20px_rgba(225,29,72,0.3)]', bg: 'bg-primary/10' },
+        { title: 'Lịch chiếu đang chạy', value: dashboardData.activeShows?.length || '0', icon: PlayCircleIcon, color: 'text-blue-500', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]', bg: 'bg-blue-500/10' },
+        { title: 'Tổng Người Dùng', value: dashboardData.totalUser || '0', icon: UsersIcon, color: 'text-purple-500', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]', bg: 'bg-purple-500/10' },
     ];
 
     const fetchDashboardData = async () => {
@@ -46,7 +46,7 @@ const Dashboard = () => {
         <div className="animate-fade-in relative z-10">
             <BlurCircle top="-100px" right="-100px" />
             <div className="flex items-center justify-between mb-8">
-                <Title text1="admin" text2="Overview" />
+                <Title text1="admin" text2="Tổng quan" />
             </div>
 
             {/* Glowing Stats Cards */}
@@ -67,7 +67,7 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-14 mb-6 flex items-center justify-between">
-                <p className="text-2xl font-bold tracking-tight">Lịch chiếu</p>
+                <p className="text-2xl font-bold tracking-tight">Lịch chiếu mới nhất</p>
             </div>
             
             {/* Elegant Active Shows Grid */}
@@ -86,7 +86,7 @@ const Dashboard = () => {
                                 <h3 className="font-bold text-lg line-clamp-1 group-hover:text-primary transition-colors">{show.movie?.title}</h3>
                                 <div className="flex items-center gap-2 mt-2">
                                     <span className="px-2 py-0.5 text-[10px] font-bold bg-primary/20 text-primary uppercase rounded border border-primary/20 tracking-wider">
-                                        {show.hall || 'HALL A'}
+                                        {show.hall || 'Rạp A'}
                                     </span>
                                     <span className="flex items-center gap-1 text-xs text-gray-400 font-medium bg-white/5 px-2 py-0.5 rounded border border-white/5">
                                         <StarIcon className="w-3 h-3 text-yellow-500 fill-yellow-500" />
@@ -97,7 +97,7 @@ const Dashboard = () => {
                             
                             <div className="mt-4 space-y-2">
                                 <div className="flex justify-between items-center bg-black/40 px-3 py-2 rounded-lg border border-white/5">
-                                    <span className="text-xs text-gray-400">Price</span>
+                                    <span className="text-xs text-gray-400">Giá vé</span>
                                     <span className="text-base font-bold text-white">{currency}{show.showPrice?.toLocaleString()}</span>
                                 </div>
                                 <div className="flex items-center gap-4 text-xs text-gray-400 px-1">

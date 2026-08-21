@@ -15,7 +15,7 @@ const Movies = () => {
   const allGenres = useMemo(() => {
     const genres = new Set(['All'])
     shows.forEach(show => {
-      show.movie?.genres?.forEach(g => genres.add(g.name))
+      show.genres?.forEach(g => genres.add(g.name))
     })
     return Array.from(genres)
   }, [shows])
@@ -27,25 +27,25 @@ const Movies = () => {
     // Search filter
     if (searchTerm) {
       result = result.filter(show =>
-        show.movie?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        show.title?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     // Genre filter
     if (genreFilter !== 'All') {
       result = result.filter(show =>
-        show.movie?.genres?.some(g => g.name === genreFilter)
+        show.genres?.some(g => g.name === genreFilter)
       )
     }
 
     // Sorting
     result.sort((a, b) => {
       if (sortType === 'Newest') {
-        return new Date(b.movie?.release_date) - new Date(a.movie?.release_date)
+        return new Date(b.release_date) - new Date(a.release_date)
       } else if (sortType === 'Oldest') {
-        return new Date(a.movie?.release_date) - new Date(b.movie?.release_date)
+        return new Date(a.release_date) - new Date(b.release_date)
       } else if (sortType === 'Rating (High-Low)') {
-        return (b.movie?.vote_average || 0) - (a.movie?.vote_average || 0)
+        return (b.vote_average || 0) - (a.vote_average || 0)
       }
       return 0
     })

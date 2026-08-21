@@ -3,14 +3,17 @@ import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
 import Session from '../models/Session.js';
-import { getAuth } from '@clerk/express';
+import { getAuth, verifyToken } from '@clerk/express';
 
 const router = express.Router();
 
 // Middleware to ensure user is logged in
+// Middleware to ensure user is logged in
 const ensureUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
+    
+    // 1. Try local session (Admin/Dev)
     if (token) {
       const session = await Session.findOne({ token });
       if (session?.userId && session.expiresAt > new Date()) {
@@ -19,14 +22,19 @@ const ensureUser = async (req, res, next) => {
       }
     }
 
+    // 2. Rely on clerkMiddleware's getAuth
     const { userId } = getAuth(req);
+    
     if (!userId) {
+      console.log('[BookingRoutes] ensureUser failed: getAuth returned no userId. Token was:', token ? 'Present' : 'Missing');
       return res.status(401).json({ success: false, message: 'Not authorized, please login' });
     }
+    
     req.userId = userId;
     next();
   } catch (error) {
-    res.status(401).json({ success: false, message: error.message });
+    console.error('[BookingRoutes] Auth error:', error.message);
+    res.status(401).json({ success: false, message: error.message || 'Unknown Auth Error' });
   }
 };
 
@@ -85,25 +93,23 @@ router.post(
       throw new Error('Show not found');
     }
 
-    // Check if seats are already booked
-    const showOccupiedSeats = show.occupiedSeats || {};
-    // Let's assume occupiedSeats is { "A1": "userId", "B2": "userId" }
-    // Or it might be an array depending on previous implementation. 
-    // Wait, in AdminRoutes, it's an object. 
+    // Use atomic update to prevent double booking concurrency issues
+    const query = { _id: showId };
+    const updateQuery = { $set: {} };
 
     for (const seat of seats) {
-      if (showOccupiedSeats[seat]) {
-        res.status(400);
-        throw new Error(`Seat ${seat} is already booked`);
-      }
+      // Ensure seat does not exist in the Map yet
+      query[`occupiedSeats.${seat}`] = { $exists: false };
+      updateQuery.$set[`occupiedSeats.${seat}`] = req.userId;
     }
 
-    // Mark seats as occupied
-    for (const seat of seats) {
-      showOccupiedSeats[seat] = req.userId;
+    // This will ONLY succeed if ALL requested seats are available (not exists)
+    const updatedShow = await Show.findOneAndUpdate(query, updateQuery, { new: true });
+
+    if (!updatedShow) {
+      res.status(400);
+      throw new Error('One or more selected seats are already booked by someone else. Please choose different seats.');
     }
-    show.occupiedSeats = showOccupiedSeats;
-    await show.save();
 
     // Create booking
     const orderCode = `CIN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -123,9 +129,12 @@ router.post(
     try {
       createdBooking = await booking.save();
     } catch (error) {
-      for (const seat of seats) delete showOccupiedSeats[seat];
-      show.occupiedSeats = showOccupiedSeats;
-      await show.save();
+      // Rollback seats if booking fails to save
+      const rollbackQuery = { $unset: {} };
+      for (const seat of seats) {
+        rollbackQuery.$unset[`occupiedSeats.${seat}`] = 1;
+      }
+      await Show.findByIdAndUpdate(showId, rollbackQuery);
       throw error;
     }
 

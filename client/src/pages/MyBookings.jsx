@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth, useClerk } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
 import BlurCircle from '../components/BlurCircle'
 import Loading from '../components/Loading'
@@ -13,22 +14,40 @@ const MyBookings = () => {
   const { currency } = useAppContext()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { isSignedIn, isLoaded } = useAuth()
+  const { openSignIn } = useClerk()
 
   const [bookings, setBookings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [authError, setAuthError] = useState(false)
 
   const fetchBookings = async () => {
     try {
+      setAuthError(false)
       const data = await getMyBookings()
       setBookings(data)
     } catch (err) {
-      console.error('Failed to load bookings:', err)
+      if (err.status === 401) {
+        setAuthError(true)
+        setBookings([])
+      } else {
+        console.error('Failed to load bookings:', err)
+        toast.error(err.message || 'Failed to load bookings')
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
+    if (!isLoaded) return
+
+    if (!isSignedIn) {
+      setIsLoading(false)
+      setAuthError(true)
+      return
+    }
+
     const handlePaymentReturn = async () => {
       const isSuccess = searchParams.get('payment_success')
       const isCanceled = searchParams.get('payment_canceled')
@@ -37,8 +56,12 @@ const MyBookings = () => {
       if (isSuccess && bookingId) {
         setIsLoading(true)
         try {
-          await verifyPayment(bookingId)
-          toast.success('Payment verified successfully!')
+          const res = await verifyPayment(bookingId)
+          if (res.success) {
+            toast.success('Payment verified successfully!')
+          } else {
+            toast.success('Your payment is being processed. It may take a moment to update.')
+          }
         } catch (error) {
           toast.error('Payment verification failed.')
         } finally {
@@ -56,7 +79,7 @@ const MyBookings = () => {
     }
 
     handlePaymentReturn()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePayNow = async (bookingId) => {
     const toastId = toast.loading('Redirecting to secure checkout...')
@@ -68,7 +91,30 @@ const MyBookings = () => {
     }
   }
 
-  if (isLoading) return <Loading />
+  if (!isLoaded || isLoading) return <Loading />
+
+  if (authError || !isSignedIn) {
+    return (
+      <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh] animate-fade-in'>
+        <BlurCircle top="100px" left="10%" />
+        <div className='flex flex-col items-center justify-center py-20 gap-5 max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md shadow-2xl'>
+          <div className='relative p-8 rounded-full bg-primary/10 border border-primary/20'>
+            <TicketIcon className='w-14 h-14 text-primary relative z-10' />
+          </div>
+          <div className="text-center">
+            <h2 className='text-2xl font-semibold mb-2'>Please login to view your tickets</h2>
+            <p className='text-gray-400 max-w-md mx-auto'>Sign in to see your bookings and manage payments.</p>
+          </div>
+          <button
+            onClick={() => openSignIn()}
+            className="mt-4 px-8 py-3 bg-primary hover:bg-primary-dull transition-all duration-300 rounded-full font-medium"
+          >
+            Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh] animate-fade-in'>

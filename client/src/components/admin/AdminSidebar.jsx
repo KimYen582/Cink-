@@ -12,12 +12,12 @@ const AdminSidebar = () => {
     }
 
     const adminNavlinks = [
-        { name: 'Dashboard', path: '/admin', icon: LayoutDashboardIcon },
-        { name: 'Add Shows', path: '/admin/add-shows', icon: PlusSquareIcon },
-        { name: 'List Shows', path: '/admin/list-shows', icon: ListIcon },
-        { name: 'List Bookings', path: '/admin/list-bookings', icon: ListCollapseIcon },
-        { name: 'Manage Movies', path: '/admin/list-movies', icon: FilmIcon },
-        { name: 'Manage Users', path: '/admin/list-users', icon: UsersIcon },
+        { name: 'Bảng điều khiển', path: '/admin', icon: LayoutDashboardIcon },
+        { name: 'Tạo Lịch chiếu', path: '/admin/add-shows', icon: PlusSquareIcon },
+        { name: 'Danh sách Lịch chiếu', path: '/admin/list-shows', icon: ListIcon },
+        { name: 'Danh sách Đặt vé', path: '/admin/list-bookings', icon: ListCollapseIcon },
+        { name: 'Quản lý Phim', path: '/admin/list-movies', icon: FilmIcon },
+        { name: 'Quản lý Người dùng', path: '/admin/list-users', icon: UsersIcon },
     ]
 
     return (

@@ -1,18 +1,28 @@
 import express from "express";
-import { getAuth, clerkClient } from "@clerk/express";
+import { getAuth, clerkClient, verifyToken } from "@clerk/express";
 import User from "../models/User.js";
 
 const router = express.Router();
 
 router.post("/sync", async (req, res) => {
     try {
-        const { userId } = getAuth(req);
+        let userId;
+        const token = req.headers.authorization?.split(' ')[1];
+        if (token) {
+            const Session = (await import('../models/Session.js')).default;
+            const session = await Session.findOne({ token });
+            if (session?.userId && session.expiresAt > new Date()) {
+                userId = session.userId;
+            }
+        }
+        
+        if (!userId) {
+            const authResult = getAuth(req);
+            userId = authResult.userId;
+        }
 
         if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized",
-            });
+            return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
         const user = await clerkClient.users.getUser(userId);

@@ -3,18 +3,31 @@ import asyncHandler from 'express-async-handler';
 import Stripe from 'stripe';
 import Booking from '../models/Booking.js';
 import Payment from '../models/Payment.js';
+import Session from '../models/Session.js';
 import { getAuth } from '@clerk/express';
 
 const router = express.Router();
 
-const ensureUser = (req, res, next) => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    res.status(401);
-    throw new Error('Not authorized, please login');
+const ensureUser = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const session = await Session.findOne({ token });
+      if (session?.userId && session.expiresAt > new Date()) {
+        req.userId = session.userId;
+        return next();
+      }
+    }
+
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Not authorized, please login' });
+    }
+    req.userId = userId;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message || 'Not authorized, please login' });
   }
-  req.userId = userId;
-  next();
 };
 
 /**
@@ -50,8 +63,17 @@ router.post(
       throw new Error('Booking is already paid');
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_your_stripe_key_here') {
+      // MOCK PAYMENT FLOW FOR DEV/TESTING
+      return res.json({ 
+        success: true, 
+        url: `${clientUrl}/my-bookings?payment_success=true&bookingId=${booking._id}` 
+      });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
     try {
       const session = await stripe.checkout.sessions.create({
@@ -61,7 +83,7 @@ router.post(
             price_data: {
               currency: 'vnd',
               product_data: {
-                name: `Vé xem phim: ${booking.movie?.title}`,
+                name: `Vé xem phim: ${booking.movie?.title || 'Unknown'}`,
                 description: `Suất chiếu ID: ${booking.show} | Ghế: ${booking.seats.join(', ')}`,
               },
               unit_amount: booking.amount,
@@ -106,30 +128,20 @@ router.post(
       throw new Error('Booking not found');
     }
 
-    // In a real production app, you MUST use Stripe Webhooks to verify payment.
-    // For this demonstration, if the client hits /verify, we check the DB or assume it's paid.
-    // Since we don't have webhook setup yet, we will just mark it paid here as a fallback mock for the success_url.
-    
-    if (booking.paymentStatus !== 'paid') {
-      const transactionId = `txn_stripe_${Date.now()}`;
-      const payment = new Payment({
-        _id: `pay_${Date.now()}`,
-        booking: booking._id,
-        user: req.userId,
-        amount: booking.amount,
-        method: 'credit_card',
-        status: 'paid',
-        transactionId,
-        paidAt: Date.now(),
-      });
-      await payment.save();
-
-      booking.paymentStatus = 'paid';
-      booking.status = 'confirmed';
-      await booking.save();
+    // With Stripe Webhooks configured, this endpoint no longer mutates the database natively.
+    // However, if we're mocking Stripe (no STRIPE_SECRET_KEY), we'll simulate the webhook here.
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_your_stripe_key_here') {
+      if (booking.paymentStatus !== 'paid') {
+        booking.paymentStatus = 'paid';
+        await booking.save();
+      }
     }
 
-    res.json({ success: true, booking });
+    if (booking.paymentStatus === 'paid') {
+      return res.json({ success: true, booking, message: 'Payment verified successfully.' });
+    } else {
+      return res.json({ success: false, booking, message: 'Payment is pending or failed. Waiting for Stripe webhook...' });
+    }
   })
 );
 
