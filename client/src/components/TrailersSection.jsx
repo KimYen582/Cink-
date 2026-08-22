@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { dummyTrailers } from '../assets/assets'
-import ReactPlayer from 'react-player'
 import BlurCircle from './BlurCircle'
 import { PlayCircleIcon } from 'lucide-react'
 
@@ -9,13 +8,19 @@ const TrailersSection = () => {
     const [currentTrailer, setCurrentTrailer] = useState(dummyTrailers[0])
     const [activeIndex, setActiveIndex] = useState(0)
 
-    // Generate YouTube thumbnail from URL
+    // Generate YouTube thumbnail from URL (supports watch?v=, embed/, and youtu.be/ links)
     const getYouTubeThumbnail = (url) => {
-        const match = url.match(/(?:embed\/|v=)([a-zA-Z0-9_-]{11})/)
+        const match = url.match(/(?:embed\/|v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
         if (match) {
             return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
         }
         return null
+    }
+
+    // Extract the 11-char YouTube video ID from any link format
+    const getYouTubeId = (url) => {
+        const match = url.match(/(?:embed\/|v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+        return match ? match[1] : null
     }
 
     return (
@@ -34,13 +39,14 @@ const TrailersSection = () => {
 
             <div className='relative mt-2'>
                 <BlurCircle top='-100px' right='-100px' />
-                <div className='mx-auto max-w-[960px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50'>
-                    <ReactPlayer
-                        url={currentTrailer.videoUrl}
-                        controls={true}
-                        className="mx-auto max-w-full"
-                        width="960px"
-                        height="540px"
+                <div className='mx-auto max-w-[960px] aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50'>
+                    <iframe
+                        key={currentTrailer.id}
+                        src={`https://www.youtube.com/embed/${getYouTubeId(currentTrailer.videoUrl)}?autoplay=0`}
+                        title={currentTrailer.title || 'Trailer'}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                     />
                 </div>
             </div>
@@ -54,11 +60,10 @@ const TrailersSection = () => {
                     return (
                         <div
                             key={trailer.id}
-                            className={`relative group cursor-pointer rounded-xl overflow-hidden transition-all duration-300 ${
-                                isActive
+                            className={`relative group cursor-pointer rounded-xl overflow-hidden transition-all duration-300 ${isActive
                                     ? 'ring-2 ring-primary scale-[1.02] shadow-lg shadow-primary/20'
                                     : 'hover:-translate-y-1 hover:shadow-lg opacity-70 hover:opacity-100'
-                            }`}
+                                }`}
                             onClick={() => {
                                 setCurrentTrailer(trailer)
                                 setActiveIndex(index)
@@ -82,9 +87,8 @@ const TrailersSection = () => {
                             {/* Play icon */}
                             <PlayCircleIcon
                                 strokeWidth={1.4}
-                                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-                                    isActive ? 'w-8 h-8 text-primary' : 'w-7 h-7 text-white/80 group-hover:scale-110'
-                                }`}
+                                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${isActive ? 'w-8 h-8 text-primary' : 'w-7 h-7 text-white/80 group-hover:scale-110'
+                                    }`}
                             />
 
                             {/* Title bar */}
