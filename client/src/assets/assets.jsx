@@ -15,7 +15,7 @@ export const assets = {
   poster1,
   screenImage
 
-  }
+}
 
 export const dummyTrailers = [
   {
@@ -26,7 +26,7 @@ export const dummyTrailers = [
   {
     id: 2,
     title: "Trailer Movie 2",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+    videoUrl: "https://youtu.be/DKtxjrK3hGE?si=cGDPyrND2H820u50"
   },
   {
     id: 3,
@@ -90,29 +90,29 @@ export const dummyBookingData = [
   },
 ]
 export const dummyDashboardData = {
-    totalBookings: 120,
-    totalRevenue: 5000000,
-    activeShows: [
-        {
-            _id: "show_001",
-            movie: null,
-            showDateTime: "2026-08-20T19:00:00",
-            showPrice: 100000
-        },
-        {
-            _id: "show_002",
-            movie: null,
-            showDateTime: "2026-08-20T20:00:00",
-            showPrice: 120000
-        },
-        {
-            _id: "show_003",
-            movie: null,
-            showDateTime: "2026-08-21T19:30:00",
-            showPrice: 100000
-        }
-    ],
-    totalUser: 50
+  totalBookings: 120,
+  totalRevenue: 5000000,
+  activeShows: [
+    {
+      _id: "show_001",
+      movie: null,
+      showDateTime: "2026-08-20T19:00:00",
+      showPrice: 100000
+    },
+    {
+      _id: "show_002",
+      movie: null,
+      showDateTime: "2026-08-20T20:00:00",
+      showPrice: 120000
+    },
+    {
+      _id: "show_003",
+      movie: null,
+      showDateTime: "2026-08-21T19:30:00",
+      showPrice: 100000
+    }
+  ],
+  totalUser: 50
 };
 
 
